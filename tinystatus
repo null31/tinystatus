@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 title=tinystatus
 header="Global Status"
@@ -53,17 +53,41 @@ check(){
     fi
 }
 
+get_data(){
+    ctype="${1}"
+    host="${2}"
+    name="${3}"
+    string_key="${4}"
+
+    IPv="$(echo "${ctype}" | grep -o '[46]$')"
+    case "${ctype}" in
+        info*)
+        if [ "${string_key}" != 0 ]; then
+                string_data="$(curl -${IPv}sSkL -H "${useragent}" -m "${timeout}" "${host}" | jq -r ".${string_key}" 2> "${tmp}/ko/${name}.error")"
+        else
+                string_data="$(curl -${IPv}sSkL -H "${useragent}" -m "${timeout}" "${host}" 2> "${tmp}/ko/${name}.error")"
+        fi
+    esac
+
+    echo "${string_data}" > "${tmp}/data/${name}.status"
+}
+
 command_exists 'curl'
 command_exists 'nc'
 command_exists 'ping'
-mkdir -p "${tmp}/ok" "${tmp}/ko" || exit 1
+command_exists 'jq'
+mkdir -p "${tmp}/ok" "${tmp}/ko" "${tmp}/data" || exit 1
 
 while IFS="$(printf '\n')" read -r line; do
     ctype="$(get_element 1 "${line}")"
     code="$(get_element 2 "${line}")"
     name="$(get_element 3 "${line}")"
     host="$(get_element 4 "${line}")"
-    check "${ctype}" "${host}" "${name}" "${code}" &
+    if [[ "${ctype}" =~ "info" ]]; then
+        get_data "${ctype}" "${host}" "${name}" "${code}" &
+    else
+        check "${ctype}" "${host}" "${name}" "${code}" &
+    fi
 done < "${checkfile}"
 wait
 
@@ -109,6 +133,16 @@ for file in "${tmp}/ok/"*.status; do
 done
 cat << EOF
 </ul>
+<ul>
+EOF
+for file in "${tmp}/data/"*.status; do
+    [ -e "${file}" ] || continue
+    name="$(basename "${file}" | sed 's,.status$,,')"
+    status="$(cat "${file}")"
+    echo "<li>${name} <span class='status success'>${status}</span></li>"
+done
+cat << EOF
+</ul>
 <p class=small> Last check: $(date +%FT%T%z)</p>
 EOF
 if [ -f "${incidentsfile}" ]; then
@@ -128,4 +162,3 @@ rm -r "${tmp}" 2>/dev/null
 if [ "${failonoutage}" = true ]; then
     exit "${outagenb}"
 fi
-
