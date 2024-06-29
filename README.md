@@ -41,6 +41,6 @@ Command can be:
 * `info` - Get a simple or json format text using cURL
 * `doh`  - Check DoH status
 
-There are also `http4`, `http6`, `ping4`, `ping6`, `port4`, `port6`, `info4`, `info6`, `doh4`, `doh6`  for IPv4 or IPv6 only check.
-Note: `port4` and `port6` require OpenBSD `nc` binary.
+There are also `http4`, `http6`, `ping4`, `ping6`, `port4`, `port6`, `info4`, `info6`, `doh4`, `doh6`  for IPv4 or IPv6 only check.  
+Note: `port4` and `port6` require OpenBSD `nc` binary.  
 Note: `info4` and `info6` if JSON is used, then requires jq installed and a key to select the data, otherwise just fill with 0 the `Expected Code` column.
