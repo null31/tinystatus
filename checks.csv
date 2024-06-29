@@ -2,6 +2,7 @@ http,   200,  Google Website,         https://google.com
 http4,  200,  Google Website (IPv4),  https://google.com
 http6,  200,  Google Website (IPv6),  https://google.com
 http,   404,  Google 404,             https://google.com/dummy
+doh4,   200,  CloudFlare DoH,         one.one.one.one/dns-query
 ping,   0,    Google ping,            8.8.8.8
 port,   0,    Google DNS,             8.8.8.8 53
 info,   0,    My IP,                  http://checkip.amazonaws.com
